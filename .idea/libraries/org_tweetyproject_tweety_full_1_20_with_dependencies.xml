@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="org.tweetyproject.tweety-full-1.20-with-dependencies">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/org.tweetyproject.tweety-full-1.20-with-dependencies.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/org.tweetyproject.tweety-full-1.20-with-dependencies.jar!/" />
+    </SOURCES>
+  </library>
+</component>
