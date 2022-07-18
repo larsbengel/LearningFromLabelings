@@ -1,5 +1,5 @@
 
-package org.tweetyproject.arg.dung.thesis.syntax;
+package syntax;
 
 import org.tweetyproject.arg.dung.reasoner.AbstractExtensionReasoner;
 import org.tweetyproject.arg.dung.semantics.ArgumentStatus;
@@ -21,9 +21,9 @@ public class Entity {
     private DungTheory hiddenFramework;
 
     /** structure to store the labeling of the AF */
-    private Map<Semantics, List<Example>> examples;
+    private Map<Semantics, List<Input>> examples;
 
-    private List<Example> allExamples;
+    private List<Input> allInputs;
 
     /**
      * initialize the entity with the given AF
@@ -39,11 +39,11 @@ public class Entity {
         this.computeExamplesForSemantics(Semantics.CO);
         this.computeExamplesForSemantics(Semantics.ST);
 
-        this.allExamples = new LinkedList<>();
-        this.allExamples.addAll(this.getAllLabelings(Semantics.CF));
-        this.allExamples.addAll(this.getAllLabelings(Semantics.ADM));
-        this.allExamples.addAll(this.getAllLabelings(Semantics.CO));
-        this.allExamples.addAll(this.getAllLabelings(Semantics.ST));
+        this.allInputs = new LinkedList<>();
+        this.allInputs.addAll(this.getAllLabelings(Semantics.CF));
+        this.allInputs.addAll(this.getAllLabelings(Semantics.ADM));
+        this.allInputs.addAll(this.getAllLabelings(Semantics.CO));
+        this.allInputs.addAll(this.getAllLabelings(Semantics.ST));
 
         //System.out.println("CF: " + examples.get(Semantics.CF).size());
         //System.out.println("ADM: " + examples.get(Semantics.ADM).size());
@@ -57,9 +57,9 @@ public class Entity {
      */
     private void computeExamplesForSemantics(Semantics sem) {
         Collection<Extension> exts = AbstractExtensionReasoner.getSimpleReasonerForSemantics(sem).getModels(this.hiddenFramework);
-        List<Example> examples_sem = new LinkedList<>();
+        List<Input> examples_sem = new LinkedList<>();
         for (Extension ext: exts) {
-            Example ex = new Example(this.hiddenFramework, ext, sem);
+            Input ex = new Input(this.hiddenFramework, ext, sem);
             examples_sem.add(ex);
         }
         this.examples.put(sem, examples_sem);
@@ -71,19 +71,19 @@ public class Entity {
      * @param sem a semantics
      * @return a labeling
      */
-    public Example getLabeling(Semantics sem) {
-        List<Example> examplesSem = this.examples.get(sem);
+    public Input getLabeling(Semantics sem) {
+        List<Input> examplesSem = this.examples.get(sem);
         Random rnd = new Random(0);
         int id = rnd.nextInt(examplesSem.size());
 
         return examplesSem.remove(id);
     }
 
-    public Example getAnyLabeling() {
+    public Input getAnyLabeling() {
         Random rnd = new Random();
-        int id = rnd.nextInt(this.allExamples.size());
+        int id = rnd.nextInt(this.allInputs.size());
 
-        return this.allExamples.remove(id);
+        return this.allInputs.remove(id);
     }
 
     /**
@@ -91,7 +91,7 @@ public class Entity {
      * @param sem a semantics
      * @return all labelings of the hidden AF wrt. the given semantics
      */
-    public Collection<Example> getAllLabelings(Semantics sem) {
+    public Collection<Input> getAllLabelings(Semantics sem) {
         return this.examples.get(sem);
     }
 
@@ -100,14 +100,14 @@ public class Entity {
      * very inefficiently implemented right now
      *
      * @param theory a dung theory
-     * @param examples a set of labelings
+     * @param inputs a set of labelings
      * @return "true" if both frameworks are equivalent
      */
-    public boolean verifyFramework(DungTheory theory, Collection<Example> examples) {
-        for (Example example: examples) {
-            if (this.examples.get(example.getSemantics()).contains(example)) {
-                Collection<Extension> exts = AbstractExtensionReasoner.getSimpleReasonerForSemantics(example.getSemantics()).getModels(theory);
-                Extension ext = new Extension(example.getArgumentsOfStatus(ArgumentStatus.IN));
+    public boolean verifyFramework(DungTheory theory, Collection<Input> inputs) {
+        for (Input input : inputs) {
+            if (this.examples.get(input.getSemantics()).contains(input)) {
+                Collection<Extension> exts = AbstractExtensionReasoner.getSimpleReasonerForSemantics(input.getSemantics()).getModels(theory);
+                Extension ext = new Extension(input.getArgumentsOfStatus(ArgumentStatus.IN));
                 if (!exts.contains(ext)) {
                     return false;
                 }

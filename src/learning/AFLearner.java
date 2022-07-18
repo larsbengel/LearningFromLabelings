@@ -1,8 +1,8 @@
 
-package org.tweetyproject.arg.dung.thesis.learning;
+package learning;
 
 import org.tweetyproject.arg.dung.syntax.DungTheory;
-import org.tweetyproject.arg.dung.thesis.syntax.Example;
+import syntax.Input;
 
 import java.util.Collection;
 
@@ -17,7 +17,7 @@ public interface AFLearner {
      * @param labeling some input labeling
      * @return true if the labeling has been processed successfully
      */
-    boolean learnLabeling(Example labeling);
+    boolean learnLabeling(Input labeling);
 
     /**
      * compute all argumentation frameworks that satisfy the internal acceptance conditions
@@ -41,4 +41,5 @@ public interface AFLearner {
      * @return number of afs that produce all processed input labelings
      */
     long getNumberOfFrameworks();
+    long getNumberOfFrameworks(boolean shortcut);
 }

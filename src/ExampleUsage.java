@@ -1,13 +1,10 @@
-
-package org.tweetyproject.arg.dung.thesis;
-
+import learning.AFLearner;
 import org.tweetyproject.arg.dung.semantics.Semantics;
 import org.tweetyproject.arg.dung.syntax.Argument;
 import org.tweetyproject.arg.dung.syntax.DungTheory;
-import org.tweetyproject.arg.dung.thesis.learning.AFLearner;
-import org.tweetyproject.arg.dung.thesis.learning.SimpleAFLearner;
-import org.tweetyproject.arg.dung.thesis.syntax.Entity;
-import org.tweetyproject.arg.dung.thesis.syntax.Example;
+import learning.SimpleAFLearner;
+import syntax.Entity;
+import syntax.Input;
 
 /**
  * Showcasing how to use the implementation of the learning algorithm
@@ -38,18 +35,18 @@ public class ExampleUsage {
         AFLearner learner = new SimpleAFLearner(entity.getArguments());
 
         // learn a stable labeling
-        Example example1 = entity.getLabeling(Semantics.ST);
-        learner.learnLabeling(example1);
+        Input input1 = entity.getLabeling(Semantics.ST);
+        learner.learnLabeling(input1);
 
-        System.out.println("\nAcceptance conditions after learning the stable labeling: " + example1);
+        System.out.println("\nAcceptance conditions after learning the stable labeling: " + input1);
         learner.printStatus();
         System.out.println("Number of AFs that satisfy these conditions: " + learner.getNumberOfFrameworks());
 
         // learn a conflict-free labeling
-        Example example2 = entity.getLabeling(Semantics.CF);
-        learner.learnLabeling(example2);
+        Input input2 = entity.getLabeling(Semantics.CF);
+        learner.learnLabeling(input2);
 
-        System.out.println("\nAcceptance conditions after learning the conflict-free labeling: " + example2);
+        System.out.println("\nAcceptance conditions after learning the conflict-free labeling: " + input2);
         learner.printStatus();
         System.out.println("Number of AFs that satisfy these conditions: " + learner.getNumberOfFrameworks());
 

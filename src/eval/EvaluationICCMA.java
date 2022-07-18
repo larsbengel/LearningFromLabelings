@@ -1,5 +1,5 @@
 
-package org.tweetyproject.arg.dung.thesis.eval;
+package eval;
 
 import org.tweetyproject.arg.dung.parser.AbstractDungParser;
 import org.tweetyproject.arg.dung.parser.ApxParser;
@@ -7,9 +7,9 @@ import org.tweetyproject.arg.dung.semantics.Extension;
 import org.tweetyproject.arg.dung.semantics.Semantics;
 import org.tweetyproject.arg.dung.syntax.Argument;
 import org.tweetyproject.arg.dung.syntax.DungTheory;
-import org.tweetyproject.arg.dung.thesis.learning.AFLearner;
-import org.tweetyproject.arg.dung.thesis.learning.SimpleAFLearner;
-import org.tweetyproject.arg.dung.thesis.syntax.Example;
+import learning.AFLearner;
+import learning.SimpleAFLearner;
+import syntax.Input;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,22 +54,22 @@ public class EvaluationICCMA {
                 continue;
             }
 
-            List<Example> examples = new LinkedList<>();
+            List<Input> inputs = new LinkedList<>();
             for (Collection<Argument> ext: exts_co) {
-                Example example = new Example(theory, new Extension(ext), Semantics.CO);
-                examples.add(example);
+                Input input = new Input(theory, new Extension(ext), Semantics.CO);
+                inputs.add(input);
             }
             for (Collection<Argument> ext: exts_st) {
-                Example example = new Example(theory, new Extension(ext), Semantics.ST);
-                examples.add(example);
+                Input input = new Input(theory, new Extension(ext), Semantics.ST);
+                inputs.add(input);
             }
 
-            Collection<Example> examplesLearn = new ArrayList<>();
+            Collection<Input> examplesLearn = new ArrayList<>();
             while (examplesLearn.size() < 200) {
                 try {
                     Random rnd = new Random();
-                    int id = rnd.nextInt(examples.size());
-                    examplesLearn.add(examples.remove(id));
+                    int id = rnd.nextInt(inputs.size());
+                    examplesLearn.add(inputs.remove(id));
                 } catch (IllegalArgumentException e) {
                     break;
 
@@ -98,8 +98,8 @@ public class EvaluationICCMA {
             System.out.print("Learning...");
             int num_learned = 0;
             long learning_start = System.nanoTime();
-            for (Example example : examplesLearn) {
-                learner.learnLabeling(example);
+            for (Input input : examplesLearn) {
+                learner.learnLabeling(input);
                 num_learned++;
             }
             long learning_end = System.nanoTime();

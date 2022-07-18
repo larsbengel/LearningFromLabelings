@@ -1,5 +1,5 @@
 
-package org.tweetyproject.arg.dung.thesis.util;
+package util;
 
 import org.tweetyproject.logics.pl.semantics.PossibleWorld;
 import org.tweetyproject.logics.pl.syntax.*;

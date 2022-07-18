@@ -1,12 +1,12 @@
 
-package org.tweetyproject.arg.dung.thesis.learning;
+package learning;
 
 import org.tweetyproject.arg.dung.syntax.Argument;
 import org.tweetyproject.arg.dung.syntax.Attack;
 import org.tweetyproject.arg.dung.syntax.DungTheory;
-import org.tweetyproject.arg.dung.thesis.syntax.AttackConstraint;
-import org.tweetyproject.arg.dung.thesis.syntax.Example;
-import org.tweetyproject.arg.dung.thesis.util.ModelComputation;
+import syntax.SimpleAttackConstraint;
+import syntax.Input;
+import util.ModelComputation;
 import org.tweetyproject.logics.pl.sat.Sat4jSolver;
 import org.tweetyproject.logics.pl.sat.SatSolver;
 import org.tweetyproject.logics.pl.semantics.PossibleWorld;
@@ -24,7 +24,7 @@ public class SimpleAFLearner implements AFLearner {
     /* the set of all arguments */
     protected Collection<Argument> args;
     /* structure for storing the acceptance condition of each argument */
-    protected Map<Argument, AttackConstraint> conditions;
+    protected Map<Argument, SimpleAttackConstraint> conditions;
 
     /**
      * initialize the Learner with a set of arguments
@@ -34,7 +34,7 @@ public class SimpleAFLearner implements AFLearner {
         this.args = args;
         this.conditions = new ConcurrentHashMap<>();
         for (Argument a: args) {
-            this.conditions.put(a, new AttackConstraint(a));
+            this.conditions.put(a, new SimpleAttackConstraint(a));
         }
 
     }
@@ -46,11 +46,11 @@ public class SimpleAFLearner implements AFLearner {
      * @param labeling some labeling of the set of arguments
      * @return true if the labeling was learned successfully
      */
-    public boolean learnLabeling(Example labeling) {
+    public boolean learnLabeling(Input labeling) {
         for (Argument arg: labeling.keySet()) {
-            AttackConstraint old_condition = this.conditions.get(arg);
-            AttackConstraint new_condition = new AttackConstraint(arg, labeling);
-            this.conditions.put(arg, new AttackConstraint(old_condition, new_condition));
+            SimpleAttackConstraint old_condition = this.conditions.get(arg);
+            SimpleAttackConstraint new_condition = new SimpleAttackConstraint(arg, labeling);
+            this.conditions.put(arg, new SimpleAttackConstraint(old_condition, new_condition));
         }
         return true;
     }
@@ -68,7 +68,7 @@ public class SimpleAFLearner implements AFLearner {
     public long getNumberOfFrameworks(boolean shortcut) {
         long total = 1;
         for (Argument arg: this.args) {
-            AttackConstraint attackConstraint = this.conditions.get(arg);
+            SimpleAttackConstraint attackConstraint = this.conditions.get(arg);
             AssociativePlFormula condition = (AssociativePlFormula) attackConstraint.getCondition().trim().toDnf();
 
             // optional attackers are all arguments which do not occur in the necessary condition
@@ -110,7 +110,7 @@ public class SimpleAFLearner implements AFLearner {
         for (Argument arg: this.args) {
             // for every argument get acceptance condition and combine with optional condition
             // the optional condition is needed here so that the solver actually recognizes all atoms
-            AttackConstraint attackConstraint = this.conditions.get(arg);
+            SimpleAttackConstraint attackConstraint = this.conditions.get(arg);
             AssociativePlFormula condition = attackConstraint.getCondition();
             AssociativePlFormula optionalCondition = attackConstraint.getOptionalCondition(this.args);
             // combine and transform to DNF
@@ -151,7 +151,7 @@ public class SimpleAFLearner implements AFLearner {
         theories.add(new DungTheory());
         for (Argument arg: this.args) {
             // for every argument get acceptance condition and combine with optional condition
-            AttackConstraint attackConstraint = this.conditions.get(arg);
+            SimpleAttackConstraint attackConstraint = this.conditions.get(arg);
             AssociativePlFormula condition = attackConstraint.getCondition();
             AssociativePlFormula optionalCondition = attackConstraint.getOptionalCondition(this.args);
             // combine and transform to DNF
@@ -224,7 +224,7 @@ public class SimpleAFLearner implements AFLearner {
      */
     public void printStatus(boolean dnf) {
         for (Argument arg: this.args) {
-            AttackConstraint condition = this.conditions.get(arg);
+            SimpleAttackConstraint condition = this.conditions.get(arg);
             System.out.print(arg + ":\t\t");
             if (!dnf) {
                 System.out.print(condition.getCondition() + "\t\t\t");

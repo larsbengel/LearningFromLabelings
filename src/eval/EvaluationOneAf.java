@@ -1,11 +1,11 @@
 
-package org.tweetyproject.arg.dung.thesis.eval;
+package eval;
 
 import org.tweetyproject.arg.dung.semantics.ArgumentStatus;
 import org.tweetyproject.arg.dung.syntax.DungTheory;
-import org.tweetyproject.arg.dung.thesis.learning.SimpleAFLearner;
-import org.tweetyproject.arg.dung.thesis.syntax.Entity;
-import org.tweetyproject.arg.dung.thesis.syntax.Example;
+import learning.SimpleAFLearner;
+import syntax.Entity;
+import syntax.Input;
 import org.tweetyproject.arg.dung.util.DefaultDungTheoryGenerator;
 import org.tweetyproject.arg.dung.util.DungTheoryGenerationParameters;
 
@@ -50,16 +50,16 @@ public class EvaluationOneAf {
 
             Entity entity = new Entity(theory);
 
-            // set up learning instance and get all st, co and adm examples
+            // set up learning instance and get all st, co and adm inputs
             SimpleAFLearner learner = new SimpleAFLearner(entity.getArguments());
 
-            Collection<Example> examples = new ArrayList<>();
+            Collection<Input> inputs = new ArrayList<>();
             while (true) {
                 try {
-                    Example example = entity.getAnyLabeling();
-                    if (example.getArgumentsOfStatus(ArgumentStatus.IN).isEmpty())
+                    Input input = entity.getAnyLabeling();
+                    if (input.getArgumentsOfStatus(ArgumentStatus.IN).isEmpty())
                         continue;
-                    examples.add(example);
+                    inputs.add(input);
                 } catch (IllegalArgumentException e) {
                     break;
                 }
@@ -67,18 +67,18 @@ public class EvaluationOneAf {
 
             long setup_end = System.nanoTime();
             System.out.println("done");
-            //System.out.println("Num Labs: " + examples.size());
+            //System.out.println("Num Labs: " + inputs.size());
 
             // Logging
             evaluationData[0] = (long) params.numberOfArguments;
-            evaluationData[1] = (long) examples.size();
+            evaluationData[1] = (long) inputs.size();
 
             // Learn all st, co and adm labelings
             System.out.print("Learning...");
             int num_learned = 0;
             long learning_start = System.nanoTime();
-            for (Example example : examples) {
-                boolean result = learner.learnLabeling(example);
+            for (Input input : inputs) {
+                boolean result = learner.learnLabeling(input);
                 num_learned++;
 
                 if (learner.getNumberOfFrameworks(true) == 1) {
