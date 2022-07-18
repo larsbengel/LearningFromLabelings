@@ -1,5 +1,5 @@
 
-package thesis;
+package old;
 
 import org.tweetyproject.arg.dung.semantics.Extension;
 import org.tweetyproject.arg.dung.syntax.Argument;

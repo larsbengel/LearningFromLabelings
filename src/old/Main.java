@@ -17,20 +17,18 @@
  *  Copyright 2021 The TweetyProject Team <http://tweetyproject.org/contact/>
  */
 
-package thesis;
+package old;
 
 import org.tweetyproject.arg.dung.semantics.Semantics;
 import org.tweetyproject.arg.dung.syntax.DungTheory;
 import org.tweetyproject.arg.dung.util.DefaultDungTheoryGenerator;
 import org.tweetyproject.arg.dung.util.DungTheoryGenerationParameters;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -62,7 +60,7 @@ public class Main {
         System.out.println(theory.prettyPrint());
 
 
-        Example l1 = new Example();
+        Input l1 = new Input();
         l1.setSemantics(Semantics.ADM);
         l1.put(a, ArgumentStatus.IN);
         l1.put(b, ArgumentStatus.OUT);
@@ -70,7 +68,7 @@ public class Main {
         l1.put(d, ArgumentStatus.UNDECIDED);
         l1.put(e, ArgumentStatus.UNDECIDED);
 
-        Example l2 = new Example();
+        Input l2 = new Input();
         l2.setSemantics(Semantics.CO);
         l2.put(a, ArgumentStatus.OUT);
         l2.put(b, ArgumentStatus.IN);
@@ -78,7 +76,7 @@ public class Main {
         l2.put(d, ArgumentStatus.OUT);
         l2.put(e, ArgumentStatus.UNDECIDED);
 
-        Example l3 = new Example();
+        Input l3 = new Input();
         l3.setSemantics(Semantics.CF);
         l3.put(a, ArgumentStatus.UNDECIDED);
         l3.put(b, ArgumentStatus.UNDECIDED);
@@ -86,7 +84,7 @@ public class Main {
         l3.put(d, ArgumentStatus.IN);
         l3.put(e, ArgumentStatus.OUT);
 
-        Example l4 = new Example();
+        Input l4 = new Input();
         l4.setSemantics(Semantics.ADM);
         l4.put(a, ArgumentStatus.IN);
         l4.put(b, ArgumentStatus.IN);

@@ -17,7 +17,7 @@
  *  Copyright 2021 The TweetyProject Team <http://tweetyproject.org/contact/>
  */
 
-package thesis;
+package old;
 
 import org.tweetyproject.arg.dung.semantics.ArgumentStatus;
 import org.tweetyproject.arg.dung.syntax.Argument;

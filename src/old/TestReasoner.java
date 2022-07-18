@@ -17,7 +17,7 @@
  *  Copyright 2021 The TweetyProject Team <http://tweetyproject.org/contact/>
  */
 
-package thesis;
+package old;
 
 import org.tweetyproject.arg.dung.reasoner.ProboReasoner;
 import org.tweetyproject.arg.dung.semantics.Semantics;

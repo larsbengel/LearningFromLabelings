@@ -1,7 +1,6 @@
 
-package thesis;
+package old;
 
-import org.tweetyproject.arg.dung.reasoner.*;
 import org.tweetyproject.arg.dung.reasoner.SimpleConflictFreeReasoner;
 import org.tweetyproject.arg.dung.semantics.Extension;
 import org.tweetyproject.arg.dung.semantics.Semantics;

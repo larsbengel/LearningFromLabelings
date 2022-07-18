@@ -1,5 +1,5 @@
 
-package thesis;
+package old;
 
 import org.tweetyproject.logics.pl.semantics.PossibleWorld;
 import org.tweetyproject.logics.pl.syntax.*;

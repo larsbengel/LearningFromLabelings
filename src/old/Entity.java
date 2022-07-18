@@ -17,10 +17,9 @@
  *  Copyright 2021 The TweetyProject Team <http://tweetyproject.org/contact/>
  */
 
-package thesis;
+package old;
 
 import org.tweetyproject.arg.dung.reasoner.AbstractExtensionReasoner;
-import org.tweetyproject.arg.dung.reasoner.SimpleConflictFreeReasoner;
 import org.tweetyproject.arg.dung.semantics.ArgumentStatus;
 import org.tweetyproject.arg.dung.semantics.Extension;
 import org.tweetyproject.arg.dung.semantics.Semantics;
