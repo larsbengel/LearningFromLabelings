@@ -146,7 +146,7 @@ public class SimpleAFLearner implements AFLearner {
      * 3. compute all possible combinations of the attack relations and we have all argumentation frame works satisfying the conditions
      * @return the set of argumentation frameworks obtained from learning
      */
-    public Collection<DungTheory> getLearnedFrameworks() {
+    public Collection<DungTheory> getModels() {
         Collection<DungTheory> theories = new HashSet<>();
         theories.add(new DungTheory());
         for (Argument arg: this.args) {
@@ -197,7 +197,7 @@ public class SimpleAFLearner implements AFLearner {
 
      */
 
-    public DungTheory getLearnedFramework() {
+    public DungTheory getModel() {
         DungTheory theory = new DungTheory();
         theory.addAll(this.args);
         for (Argument arg: this.args) {

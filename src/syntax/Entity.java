@@ -51,6 +51,11 @@ public class Entity {
         //System.out.println("ST: " + examples.get(Semantics.ST).size());
     }
 
+    public Entity(DungTheory theory, List<Input> inputs) {
+        hiddenFramework = theory;
+        allInputs = inputs;
+    }
+
     /**
      * helper method to compute all labelings for the given semantics
      * @param sem some semantics
@@ -104,9 +109,12 @@ public class Entity {
      * @return "true" if both frameworks are equivalent
      */
     public boolean verifyFramework(DungTheory theory, Collection<Input> inputs) {
-        for (Input input : inputs) {
-            if (this.examples.get(input.getSemantics()).contains(input)) {
-                Collection<Extension> exts = AbstractExtensionReasoner.getSimpleReasonerForSemantics(input.getSemantics()).getModels(theory);
+        for (Semantics sem: this.examples.keySet()) {
+            Collection<Extension> exts = AbstractExtensionReasoner.getSimpleReasonerForSemantics(sem).getModels(theory);
+            for (Input input: inputs) {
+                if (!sem.equals(input.getSemantics())) {
+                    continue;
+                }
                 Extension ext = new Extension(input.getArgumentsOfStatus(ArgumentStatus.IN));
                 if (!exts.contains(ext)) {
                     return false;

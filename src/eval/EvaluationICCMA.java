@@ -1,6 +1,8 @@
 
 package eval;
 
+import learning.OptimizedParallelAFLearner;
+import learning.ParallelAFLearner;
 import org.tweetyproject.arg.dung.parser.AbstractDungParser;
 import org.tweetyproject.arg.dung.parser.ApxParser;
 import org.tweetyproject.arg.dung.semantics.Extension;
@@ -26,16 +28,21 @@ import java.util.stream.Collectors;
  */
 public class EvaluationICCMA {
     public static void main(String[] args) throws IOException {
+        String directory = args[0];
+        String learner_type = args[1];
         AbstractDungParser parser = new ApxParser();
-        File folder = new File("instances");
+        File folder = new File(directory);
         File[] listOfFiles = folder.listFiles();
 
         Collection<String> filenames = new HashSet<>();
 
+        if (listOfFiles == null)
+            return;
+
         for (int i = 0; i < listOfFiles.length; i++) {
             String filename = listOfFiles[i].getName();
             if (filename.endsWith(".apx")) {
-                filenames.add("instances/"+filename);
+                filenames.add(directory + "/" + filename);
             }
         }
 
@@ -46,76 +53,67 @@ public class EvaluationICCMA {
             long setup_start = System.nanoTime();
             DungTheory theory = parser.parseBeliefBaseFromFile(path);
             Collection<Collection<Argument>> exts_co = AbstractDungParser.parseExtensionList(Files.readString(Paths.get( path + ".CO")));
-            Collection<Collection<Argument>> exts_st = AbstractDungParser.parseExtensionList(Files.readString(Paths.get( path + ".ST")));
 
-            if (theory.size() > 1000) {
-                System.out.println("Skipped: " + path);
-                System.out.println(theory.size() + ", " + (exts_co.size()+exts_st.size()));
-                continue;
-            }
+            //if (theory.size() > 1000) {
+            //    System.out.println("Skipped: " + path);
+            //    System.out.println(theory.size() + ", " + (exts_co.size()+exts_st.size()));
+            //    continue;
+            //}
 
             List<Input> inputs = new LinkedList<>();
             for (Collection<Argument> ext: exts_co) {
                 Input input = new Input(theory, new Extension(ext), Semantics.CO);
                 inputs.add(input);
             }
-            for (Collection<Argument> ext: exts_st) {
-                Input input = new Input(theory, new Extension(ext), Semantics.ST);
-                inputs.add(input);
-            }
 
             Collection<Input> examplesLearn = new ArrayList<>();
-            while (examplesLearn.size() < 200) {
+            while (examplesLearn.size() < 1000) {
                 try {
                     Random rnd = new Random();
                     int id = rnd.nextInt(inputs.size());
                     examplesLearn.add(inputs.remove(id));
                 } catch (IllegalArgumentException e) {
                     break;
-
                 }
             }
 
-
-
-            Long[] evaluationData = new Long[5];
-
-            AFLearner learner = new SimpleAFLearner(theory);
-
+            AFLearner learner = null;
+            switch (learner_type) {
+                case "simple" -> learner = new SimpleAFLearner(theory);
+                case "para" -> learner = new ParallelAFLearner(theory);
+                case "opti" -> learner = new OptimizedParallelAFLearner(theory);
+            }
             long setup_end = System.nanoTime();
             System.out.println("done");
 
+            Long[] evaluationData = new Long[5];
+
             System.out.println(path);
-            System.out.println("Num Args: " + theory.size());
-            System.out.println("Num exts co: " + exts_co.size());
-            System.out.println("Num exts st: " + exts_st.size());
 
             // Logging
             evaluationData[0] = (long) theory.size();
             evaluationData[1] = (long) exts_co.size();
 
-            // Learn all st, co labelings
+            // Learn co labelings
             System.out.print("Learning...");
-            int num_learned = 0;
             long learning_start = System.nanoTime();
             for (Input input : examplesLearn) {
                 learner.learnLabeling(input);
-                num_learned++;
             }
             long learning_end = System.nanoTime();
             System.out.println("done");
 
-            // Construct all AFs, only if there are less than 1000
+            // Construct one AF
             System.out.print("Constructing...");
             long constructing_start = System.nanoTime();
-            DungTheory learnedTheory = learner.getLearnedFramework();
+            DungTheory learnedTheory = learner.getModel();
             long constructing_end = System.nanoTime();
             System.out.println("done");
 
             // Logging
             System.out.print("Saving...");
-            evaluationData[2] = (long) exts_st.size();
-            evaluationData[3] = learning_end - learning_start;;
+            evaluationData[2] = setup_end - setup_start;
+            evaluationData[3] = learning_end - learning_start;
             evaluationData[4] = constructing_end - constructing_start;
 
             // Write performance data to file

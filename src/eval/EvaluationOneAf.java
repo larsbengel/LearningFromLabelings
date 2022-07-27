@@ -101,7 +101,7 @@ public class EvaluationOneAf {
             Collection<DungTheory> afs = new HashSet<>();
             if (1 == num_afs_learned) {
                 constructing_start = System.nanoTime();
-                DungTheory af = learner.getLearnedFramework();
+                DungTheory af = learner.getModel();
                 constructing_end = System.nanoTime();
                 //System.out.println("NUM AFs: " + afs.size());
                 if (!entity.getHiddenAF().equals(af)) {
