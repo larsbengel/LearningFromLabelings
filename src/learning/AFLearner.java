@@ -23,13 +23,13 @@ public interface AFLearner {
      * compute all argumentation frameworks that satisfy the internal acceptance conditions
      * @return the set of computed argumentation frameworks
      */
-    Collection<DungTheory> getLearnedFrameworks();
+    Collection<DungTheory> getModels();
 
     /**
      * compute an argumentation framework that satisfy the internal acceptance conditions
      * @return some argumentation framework that satisfies the internal conditions
      */
-    DungTheory getLearnedFramework();
+    DungTheory getModel();
 
     /**
      * print the internal acceptance conditions

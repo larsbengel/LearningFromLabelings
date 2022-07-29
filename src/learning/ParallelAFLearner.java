@@ -2,7 +2,10 @@ package learning;
 
 
 import org.tweetyproject.arg.dung.syntax.Argument;
+import org.tweetyproject.arg.dung.syntax.Attack;
 import org.tweetyproject.arg.dung.syntax.DungTheory;
+import org.tweetyproject.logics.pl.sat.Sat4jSolver;
+import org.tweetyproject.logics.pl.sat.SatSolver;
 import org.tweetyproject.logics.pl.semantics.PossibleWorld;
 import org.tweetyproject.logics.pl.syntax.*;
 import syntax.Input;
@@ -59,7 +62,7 @@ public class ParallelAFLearner implements AFLearner {
      * 3. compute all possible combinations of the attack relations and we have all argumentation frame works satisfying the conditions
      * @return the set of argumentation frameworks obtained from learning
      */
-    public Collection<DungTheory> getLearnedFrameworks() {
+    public Collection<DungTheory> getModels() {
         Collection<DungTheory> theories = new HashSet<>();
         theories.add(new DungTheory());
         for (Argument arg: this.args) {
@@ -94,9 +97,38 @@ public class ParallelAFLearner implements AFLearner {
         return theories;
     }
 
-    @Override
-    public DungTheory getLearnedFramework() {
-        return null;
+    public DungTheory getModel() {
+        DungTheory theory = new DungTheory();
+        theory.addAll(this.args);
+        Map<Argument, Collection<Attack>> partialAttackRelations = new ConcurrentHashMap<>();
+
+        this.args.parallelStream().forEach(a -> {
+            // use Sat4j solver included in Java. TODO should be optimized
+            SatSolver solver = new Sat4jSolver();
+            PlFormula condition = this.conditions.get(a).getCondition();
+            PossibleWorld witness = (PossibleWorld) solver.getWitness(condition);
+            Collection<Attack> partialAttackRelation = this.interpretationToAttacks(witness, a);
+            partialAttackRelations.put(a, partialAttackRelation);
+        });
+        for (Collection<Attack> attacks: partialAttackRelations.values()) {
+            theory.addAllAttacks(attacks);
+        }
+        return theory;
+    }
+
+    /**
+     * compute the set of attacks that correspond to the given interpretation of an attack constraint
+     * @param itp an interpretation
+     * @param a the argument associated with the attack constraint the interpretation is coming from
+     * @return the set of attacks corresponding to itp
+     */
+    private Collection<Attack> interpretationToAttacks(PossibleWorld itp, Argument a) {
+        Collection<Attack> attacks = new HashSet<>();
+        for (Proposition b: itp) {
+            Attack attack = new Attack(new Argument(b.getName()), a);
+            attacks.add(attack);
+        }
+        return attacks;
     }
 
     public void printStatus() {

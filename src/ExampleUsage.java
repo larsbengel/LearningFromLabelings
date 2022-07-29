@@ -51,7 +51,7 @@ public class ExampleUsage {
         System.out.println("Number of AFs that satisfy these conditions: " + learner.getNumberOfFrameworks());
 
         // compute one argumentation framework that produces boh labelings;
-        DungTheory learnedTheory = learner.getLearnedFramework();
+        DungTheory learnedTheory = learner.getModel();
         System.out.println("\n\nLearned Framework: \n" + learnedTheory.prettyPrint());
 
     }

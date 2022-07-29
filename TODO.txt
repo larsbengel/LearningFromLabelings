@@ -1,5 +1,2 @@
 - Finish Implementation of Optimized Parallel AFLearner
 - Optimize Model Computation
-- Focus on computing a single AF in experiments
-- Refactor output of experiments
-- Determine one (or two) experiments to do

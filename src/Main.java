@@ -1,5 +1,7 @@
 import learning.AFLearner;
+import learning.OptimizedParallelAFLearner;
 import learning.ParallelAFLearner;
+import learning.SimpleAFLearner;
 import org.tweetyproject.arg.dung.semantics.Semantics;
 import org.tweetyproject.arg.dung.syntax.DungTheory;
 import org.tweetyproject.arg.dung.util.DefaultDungTheoryGenerator;
@@ -77,18 +79,19 @@ public class Main {
 
          */
 
-        DungTheoryGenerationParameters params = new DungTheoryGenerationParameters();
-        params.numberOfArguments = 10;
-        params.attackProbability = 0.1;
+        String learner_type = args[0];
 
-        int numLearn = 20;
+        DungTheoryGenerationParameters params = new DungTheoryGenerationParameters();
+        params.numberOfArguments = 20;
+        params.attackProbability = 0.12;
+
+        int numLearn = 1000;
         int numAFs = 10;
 
 
         List<Long> setup_time_list = new ArrayList<>();
         List<Long> learning_time_list = new ArrayList<>();
         List<Long> constructing_time_list = new ArrayList<>();
-        List<Long> num_af_list = new ArrayList<>();
 
 
         DefaultDungTheoryGenerator theoryGenerator = new DefaultDungTheoryGenerator(params);
@@ -98,13 +101,18 @@ public class Main {
             System.out.print("Setup...");
             DungTheory theory = theoryGenerator.next();
 
-            Long[] evaluationData = new Long[25];
+            Long[] evaluationData = new Long[6];
 
             long setup_start = System.nanoTime();
             Entity entity = new Entity(theory);
             long setup_end = System.nanoTime();
 
-            AFLearner learner = new ParallelAFLearner(entity.getArguments());
+            AFLearner learner = null;
+            switch (learner_type) {
+                case "simple" -> learner = new SimpleAFLearner(entity.getArguments());
+                case "para" -> learner = new ParallelAFLearner(entity.getArguments());
+                case "opti" -> learner = new OptimizedParallelAFLearner(entity.getArguments());
+            }
 
             Collection<Input> inputs = new ArrayList<>();
             while (inputs.size() < numLearn) {
@@ -134,33 +142,21 @@ public class Main {
 
 
             System.out.print("Learning...");
-            List<Integer> cutoffs = Arrays.asList(10, 20, 30, 40, 50, 60, 80, 100, 150, 200);
             long learning_time = 0;
             int num_learned = 0;
             for (Input input : inputs) {
                 long learning_start = System.nanoTime();
                 boolean result = learner.learnLabeling(input);
-                //learner.printStatus();
-                long numFrameworks = learner.getNumberOfFrameworks(true);
                 num_learned++;
-                if (numFrameworks == 1) {
-                    break;
-                }
+
                 long learning_end = System.nanoTime();
                 learning_time += learning_end - learning_start;
-                // check if current status is relevant for evaluation
-                if (cutoffs.contains(num_learned)) {
-                    evaluationData[2 + cutoffs.indexOf(num_learned)] = learning_time;
-                    evaluationData[13 + cutoffs.indexOf(num_learned)] = learner.getNumberOfFrameworks();
-                }
             }
 
             System.out.println("done");
 
-            long num_afs_learned = learner.getNumberOfFrameworks();
-            evaluationData[12] = learning_time;
-            evaluationData[23] = num_afs_learned;
-            evaluationData[24] = (long) num_learned;
+            evaluationData[2] = (long) num_learned;
+            evaluationData[4] = learning_time;
 
             System.out.print("Constructing...");
 
@@ -168,41 +164,37 @@ public class Main {
             //System.out.println("Learned Labelings: " + num_learned);
             //System.out.println("Num of AFs: " + num_afs_learned);
             //learner.computePartialAttackRelations();
-            long constructing_start = 0;
-            long constructing_end = 0;
-            Collection<DungTheory> afs = new HashSet<>();
-            if (0 < num_afs_learned && num_afs_learned < 10000) {
-                constructing_start = System.nanoTime();
-                afs = learner.getLearnedFrameworks();
-                constructing_end = System.nanoTime();
-                for (DungTheory af : afs) {
-                    //System.out.println(af.prettyPrint());
-                    //System.out.println(new SimpleAdmissibleReasoner().getModels(af));
-                    if (!entity.verifyFramework(af, inputs)) {
-                        System.out.println("Problem!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                        break;
-                    }
-                }
-            }
+            long constructing_start = System.nanoTime();
+            DungTheory learned_theory = learner.getModel();
+            long constructing_end = System.nanoTime();
             System.out.println("done");
+
+            System.out.print("Verifying...");
+            if (!entity.verifyFramework(learned_theory, inputs)) {
+                System.out.println("ERROR!");
+            } else {
+                System.out.println("done.");
+            }
+
+            long setup_time = setup_end - setup_start;
+            long constructing_time = constructing_end - constructing_start;
+            evaluationData[3] = setup_time;
+            evaluationData[5] = constructing_time;
+
 
             System.out.print("Saving...");
             String evaluation_string = i + "," + Arrays.stream(evaluationData).map(String::valueOf).collect(Collectors.joining(",")) + "\n";
 
             try {
-                Files.write(Paths.get("results_para.csv"), evaluation_string.getBytes(), StandardOpenOption.APPEND);
+                Files.write(Paths.get("results_" + learner_type + ".csv"), evaluation_string.getBytes(), StandardOpenOption.APPEND);
             }catch (IOException e) {
                 //exception handling left as an exercise for the reader
+                System.out.println("ERROR");
             }
-
-
-            long setup_time = setup_end - setup_start;
-            long constructing_time = constructing_end - constructing_start;
 
             setup_time_list.add(setup_time);
             learning_time_list.add(learning_time);
             constructing_time_list.add(constructing_time);
-            num_af_list.add(num_afs_learned);
 
             //System.out.println("Setup: " + TimeUnit.NANOSECONDS.toMillis(setup_time) + " ms");
             //System.out.println("Learning: " + TimeUnit.NANOSECONDS.toMillis(learning_time) + " ms");
@@ -215,19 +207,17 @@ public class Main {
 
 
         // write results to file
-        FileWriter writer = new FileWriter("results.csv");
+        FileWriter writer = new FileWriter("results_list_" + learner_type + ".csv");
 
         String collect_setup = setup_time_list.stream().map(String::valueOf).collect(Collectors.joining(","));
         String collect_learning = learning_time_list.stream().map(String::valueOf).collect(Collectors.joining(","));
         String collect_constructing = constructing_time_list.stream().map(String::valueOf).collect(Collectors.joining(","));
-        String collect_afs = num_af_list.stream().map(String::valueOf).collect(Collectors.joining(","));
         writer.write(collect_setup);
         writer.write("\n");
         writer.write(collect_learning);
         writer.write("\n");
         writer.write(collect_constructing);
         writer.write("\n");
-        writer.write(collect_afs);
         writer.write("\n");
         writer.close();
 

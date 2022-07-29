@@ -24,3 +24,7 @@ hs_err_pid*
 .idea/*
 *.xml
 out/*
+.idea/workspace.xml
+.idea/workspace.xml
+results.csv
+results_list_opti.csv

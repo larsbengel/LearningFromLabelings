@@ -36,10 +36,13 @@ public class EvaluationICCMA {
 
         Collection<String> filenames = new HashSet<>();
 
+        if (listOfFiles == null)
+            return;
+
         for (int i = 0; i < listOfFiles.length; i++) {
             String filename = listOfFiles[i].getName();
             if (filename.endsWith(".apx")) {
-                filenames.add(directory+"/"+filename);
+                filenames.add(directory + "/" + filename);
             }
         }
 
@@ -88,21 +91,16 @@ public class EvaluationICCMA {
                 }
             }
 
-            Long[] evaluationData = new Long[6];
-
-            AFLearner learner;
-            if (Objects.equals(learner_type, "simple")) {
-                learner = new SimpleAFLearner(theory);
-            } else if (Objects.equals(learner_type, "para")) {
-                learner = new ParallelAFLearner(theory);
-            } else if (Objects.equals(learner_type, "opti")) {
-                learner = new OptimizedParallelAFLearner(theory);
-            } else {
-                throw new RuntimeException("Unsupported Type of AFLearner");
+            AFLearner learner = null;
+            switch (learner_type) {
+                case "simple" -> learner = new SimpleAFLearner(theory);
+                case "para" -> learner = new ParallelAFLearner(theory);
+                case "opti" -> learner = new OptimizedParallelAFLearner(theory);
             }
-
             long setup_end = System.nanoTime();
             System.out.println("done");
+
+            Long[] evaluationData = new Long[6];
 
             System.out.println(path);
 
@@ -111,7 +109,7 @@ public class EvaluationICCMA {
             evaluationData[1] = (long) exts_co.size();
             evaluationData[2] = (long) exts_st.size();
 
-            // Learn all st, co labelings
+            // Learn co labelings
             System.out.print("Learning...");
             int num_learned = 0;
             long learning_start = System.nanoTime();
@@ -122,10 +120,10 @@ public class EvaluationICCMA {
             long learning_end = System.nanoTime();
             System.out.println("done");
 
-            // Construct all AFs
+            // Construct one AF
             System.out.print("Constructing...");
             long constructing_start = System.nanoTime();
-            DungTheory learnedTheory = learner.getLearnedFramework();
+            DungTheory learnedTheory = learner.getModel();
             long constructing_end = System.nanoTime();
             System.out.println("done");
 

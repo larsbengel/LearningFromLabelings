@@ -58,10 +58,14 @@ public class OptimizedParallelAFLearner implements AFLearner {
         return true;
     }
 
+    @Override
+    public Collection<DungTheory> getModels() {
+        return null;
+    }
+
     // TODO: doesnt work like this probably. need an add function for the ClausalAttackConstraint
     public boolean learnLabelings(Collection<Input> inputs) {
-        inputs.parallelStream().forEach(this::learnLabeling);
-
+        //inputs.parallelStream().forEach(this::learnLabeling);
         return true;
     }
 
@@ -102,22 +106,6 @@ public class OptimizedParallelAFLearner implements AFLearner {
             attacks.add(attack);
         }
         return attacks;
-    }
-
-    /**
-     * compute the set of argumentation frameworks that satisfy all acceptance conditions
-     * 1. for each acceptance condition (argument) compute all models
-     * 2. for each model compute a corresponding attack relation
-     * 3. compute all possible combinations of the attack relations and we have all argumentation frame works satisfying the conditions
-     * @return the set of argumentation frameworks obtained from learning
-     */
-    public Collection<DungTheory> getLearnedFrameworks() {
-        return null;
-    }
-
-    @Override
-    public DungTheory getLearnedFramework() {
-        return null;
     }
 
     public void printStatus() {
