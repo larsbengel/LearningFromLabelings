@@ -52,7 +52,8 @@ public class OptimizedParallelAFLearner implements AFLearner {
         this.args.parallelStream().forEach(arg -> {
             ClausalAttackConstraint old_condition = this.conditions.get(arg);
             ClausalAttackConstraint new_condition = new ClausalAttackConstraint(arg, labeling);
-            this.conditions.put(arg, new ClausalAttackConstraint(old_condition, new_condition));
+            ClausalAttackConstraint combined_condition = new ClausalAttackConstraint(old_condition, new_condition);
+            this.conditions.put(arg, combined_condition);
         });
         return true;
     }
@@ -75,9 +76,9 @@ public class OptimizedParallelAFLearner implements AFLearner {
 
         Map<Argument, Collection<Attack>> partialAttackRelations = new ConcurrentHashMap<>();
 
+        SatSolver solver = new Sat4jSolver();
         this.args.parallelStream().forEach(a -> {
             Collection<PlFormula> kb = this.conditions.get(a).getCondition();
-            SatSolver solver = new Sat4jSolver();
             PossibleWorld witness = (PossibleWorld) solver.getWitness(kb);
             Collection<Attack> partialAttackRelation = this.interpretationToAttacks(witness, a);
             partialAttackRelations.put(a, partialAttackRelation);
